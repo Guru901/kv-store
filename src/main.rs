@@ -28,7 +28,8 @@ fn main() {
         "add" => {
             let key = args.get(2).unwrap();
             let value = args.get(3).unwrap();
-            // add this data to file
+
+            add_data_to_file(key, value);
         }
         "get" => {
             let key = args.get(2).unwrap();
@@ -41,4 +42,17 @@ fn main() {
             println!("  get <key>           Get the value of a key");
         }
     }
+}
+
+fn add_data_to_file(key: &str, value: &str) {
+    let contents = fs::read_to_string("./test.json").unwrap();
+    let mut json = JSONParser::from(&contents)
+        .unwrap()
+        .as_object()
+        .unwrap()
+        .clone();
+
+    json.insert(key, jsonparser::JSONValue::String(value.to_string()));
+
+    fs::write("./test.json", json.to_string()).unwrap();
 }
