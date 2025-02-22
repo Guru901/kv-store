@@ -3,5 +3,14 @@
 version = 4
 
 [[package]]
+name = "jsonparser"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "924a34a53a6770bac6c4c6af2ee1bf50ad20e0d850d9458e9caff1901b0ff1cf"
+
+[[package]]
 name = "kv-store"
 version = "0.1.0"
+dependencies = [
+ "jsonparser",
+]
