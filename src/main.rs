@@ -33,7 +33,8 @@ fn main() {
         }
         "get" => {
             let key = args.get(2).unwrap();
-            // get this data from file
+            let value = get_data_from_file(key);
+            println!("{}", value)
         }
         _ => {
             println!("Usage: kv-store-json <command> <key> <value>");
@@ -55,4 +56,12 @@ fn add_data_to_file(key: &str, value: &str) {
     json.insert(key, jsonparser::JSONValue::String(value.to_string()));
 
     fs::write("./test.json", json.to_string()).unwrap();
+}
+
+fn get_data_from_file(key: &str) -> String {
+    let contents = fs::read_to_string("./test.json").unwrap();
+    let json = JSONParser::from(&contents).unwrap();
+    let value = json.get(key).unwrap();
+
+    value.as_str().unwrap().to_string()
 }
