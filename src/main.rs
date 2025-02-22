@@ -5,9 +5,9 @@ use std::process::Command;
 use jsonparser::JSONParser;
 
 fn main() {
-    Command::new("touch data.json").spawn().unwrap();
-
-    let contents = fs::read_to_string("./data.json").unwrap();
+    if !fs::metadata("./data.json").is_ok() {
+        fs::write("./data.json", r#"{}"#).unwrap();
+    }
 
     let args = env::args().collect::<Vec<String>>();
 
@@ -18,11 +18,6 @@ fn main() {
         println!("  get <key>           Get the value of a key");
         std::process::exit(1);
     });
-
-    match JSONParser::from(&contents) {
-        Ok(json) => println!("{:#?}", json.get("hehe").unwrap()),
-        Err(e) => eprintln!("Failed to parse JSON: {}", e),
-    }
 
     match command.as_str() {
         "add" => {
