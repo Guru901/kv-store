@@ -58,6 +58,8 @@ You can run the program using the following commands:
 
 To run the tests, use the following command:
 
+**NOTE:** Tests manipulate files and should be run in a single threaded environment. To do this, run the following command:
+
 ```bash
 cargo test
 ```

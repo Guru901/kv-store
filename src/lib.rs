@@ -56,6 +56,12 @@ fn get_data_from_file(key: &str) -> String {
 
 #[cfg(test)]
 mod tests {
+    /*
+        **NOTE:** Tests manipulate files and should be run in a single threaded
+        environment. To do this, run the following command:
+
+        cargo test -- --test-threads=1
+    */
     use super::*;
     use std::fs;
 
