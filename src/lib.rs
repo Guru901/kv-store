@@ -32,26 +32,26 @@ pub fn run(command: &str, args: &Vec<String>) {
 fn add_data_to_file(key: &str, value: &str) {
     check_file_exists();
 
-    let contents = fs::read_to_string("./data.json").unwrap();
+    let contents = fs::read_to_string("./data.json").expect("Failed to read file");
     let mut json = JSONParser::from(&contents)
-        .unwrap()
+        .expect("Failed to parse JSON")
         .as_object()
-        .unwrap()
+        .expect("JSON is not an object")
         .clone();
 
     json.insert(key, jsonparser::JSONValue::String(value.to_string()));
 
-    fs::write("./data.json", json.to_string()).unwrap();
+    fs::write("./data.json", json.to_string()).expect("Failed to write file");
 }
 
 fn get_data_from_file(key: &str) -> String {
     check_file_exists();
 
-    let contents = fs::read_to_string("./data.json").unwrap();
-    let json = JSONParser::from(&contents).unwrap();
-    let value = json.get(key).unwrap();
+    let contents = fs::read_to_string("./data.json").expect("Failed to read file");
+    let json = JSONParser::from(&contents).expect("Failed to parse JSON");
+    let value = json.get(key).expect("Key not found");
 
-    value.as_str().unwrap().to_string()
+    value.as_str().expect("Value is not a string").to_string()
 }
 
 #[cfg(test)]
