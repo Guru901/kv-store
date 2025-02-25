@@ -50,17 +50,14 @@ fn get_data_from_file(key: &str) -> String {
 
     let contents = fs::read_to_string("./data.json").expect("Failed to read file");
     let json = JSONParser::from(&contents);
-    let json_content: OrderedMap<JSONValue>;
 
-    match json {
-        Ok(json) => {
-            json_content = json.as_object().unwrap().clone();
+    let json_content = match json {
+        Ok(json) => json.as_object().unwrap().clone(),
+        Err(_) => {
+            fs::write("./data.json", "{}").unwrap();
+            OrderedMap::new()
         }
-        Err(e) => {
-            println!("Failed to parse JSON: {}", e);
-            return String::new();
-        }
-    }
+    };
 
     let value = json_content.get(key);
 
