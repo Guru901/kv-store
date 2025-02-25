@@ -130,10 +130,11 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
     fn test_get_nonexistent_key() {
         cleanup();
-        get_data_from_file("nonexistent_key");
+        let value = get_data_from_file("nonexistent_key");
+        assert_eq!(value, "");
+        cleanup();
     }
 
     #[test]
@@ -180,7 +181,7 @@ mod tests {
         let contents = fs::read_to_string("./data.json").unwrap();
         assert!(contents.starts_with("{"));
         assert!(contents.ends_with("}"));
-        assert!(contents.contains("\"key1\":\"value1\""));
+        assert!(contents.contains("{\"key1\": \"value1\", \"key2\": \"value2\"}"));
         cleanup();
     }
 
