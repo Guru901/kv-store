@@ -130,6 +130,7 @@ mod tests {
     }
 
     #[test]
+    #[should_panic]
     fn test_get_nonexistent_key() {
         cleanup();
         let value = get_data_from_file("nonexistent_key");
