@@ -1,4 +1,4 @@
-use jsonparser::JSONParser;
+use jsonparser::{JSONParser, JSONValue, OrderedMap};
 use std::fs;
 
 fn check_file_exists() {
@@ -33,25 +33,46 @@ fn add_data_to_file(key: &str, value: &str) {
     check_file_exists();
 
     let contents = fs::read_to_string("./data.json").expect("Failed to read file");
-    let mut json = JSONParser::from(&contents)
-        .expect("Failed to parse JSON")
-        .as_object()
-        .expect("JSON is not an object")
-        .clone();
-
-    json.insert(key, jsonparser::JSONValue::String(value.to_string()));
-
-    fs::write("./data.json", json.to_string()).expect("Failed to write file");
+    let json = JSONParser::from(&contents);
+    let mut json_content = match json {
+        Ok(json) => json.as_object().unwrap().clone(),
+        Err(_) => {
+            fs::write("./data.json", "{}").unwrap();
+            OrderedMap::new()
+        }
+    };
+    json_content.insert(key, JSONValue::String(value.to_string()));
+    fs::write("./data.json", json_content.to_string()).expect("Failed to write file");
 }
 
 fn get_data_from_file(key: &str) -> String {
     check_file_exists();
 
     let contents = fs::read_to_string("./data.json").expect("Failed to read file");
-    let json = JSONParser::from(&contents).expect("Failed to parse JSON");
-    let value = json.get(key).expect("Key not found");
+    let json = JSONParser::from(&contents);
+    let json_content: OrderedMap<JSONValue>;
 
-    value.as_str().expect("Value is not a string").to_string()
+    match json {
+        Ok(json) => {
+            json_content = json.as_object().unwrap().clone();
+        }
+        Err(e) => {
+            println!("Failed to parse JSON: {}", e);
+            return String::new();
+        }
+    }
+
+    let value = json_content.get(key);
+
+    match value {
+        Some(value) => {
+            return value.as_str().expect("Value is not a string").to_string();
+        }
+        None => {
+            println!("Key not found");
+            return String::new();
+        }
+    }
 }
 
 #[cfg(test)]
@@ -130,7 +151,6 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
     fn test_get_nonexistent_key() {
         cleanup();
         let value = get_data_from_file("nonexistent_key");
@@ -189,10 +209,8 @@ mod tests {
     #[test]
     fn test_file_corruption_recovery() {
         cleanup();
-        // Write invalid JSON
         fs::write("./data.json", "invalid json").unwrap();
 
-        // Adding new data should reset the file
         add_data_to_file("key", "value");
         assert_eq!(get_data_from_file("key"), "value");
         cleanup();
