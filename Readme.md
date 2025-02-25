@@ -14,7 +14,7 @@ A simple key-value store implemented in Rust that stores data in a JSON file. Th
 2. Clone the repository:
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/Guru901/kv-store
    cd kv-store
    ```
 
