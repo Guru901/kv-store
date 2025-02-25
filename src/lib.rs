@@ -57,9 +57,17 @@ fn get_data_from_file(key: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs;
+
+    fn cleanup() {
+        if fs::metadata("./data.json").is_ok() {
+            fs::remove_file("./data.json").unwrap();
+        }
+    }
 
     #[test]
-    fn add_to_file_test() {
+    fn test_add_single_value() {
+        cleanup();
         add_data_to_file("key", "value");
 
         let contents = fs::read_to_string("./data.json").unwrap();
@@ -67,14 +75,69 @@ mod tests {
         let value = json.get("key").unwrap();
 
         assert_eq!(value.as_str().unwrap(), "value");
+        cleanup();
     }
 
     #[test]
-    fn get_from_file_test() {
+    fn test_get_single_value() {
+        cleanup();
         add_data_to_file("key", "value");
 
         let value = get_data_from_file("key");
 
         assert_eq!(value, "value");
+        cleanup();
+    }
+
+    #[test]
+    fn test_multiple_key_values() {
+        cleanup();
+        add_data_to_file("key1", "value1");
+        add_data_to_file("key2", "value2");
+        add_data_to_file("key3", "value3");
+
+        assert_eq!(get_data_from_file("key1"), "value1");
+        assert_eq!(get_data_from_file("key2"), "value2");
+        assert_eq!(get_data_from_file("key3"), "value3");
+        cleanup();
+    }
+
+    #[test]
+    fn test_overwrite_existing_value() {
+        cleanup();
+        add_data_to_file("key", "old_value");
+        add_data_to_file("key", "new_value");
+
+        assert_eq!(get_data_from_file("key"), "new_value");
+        cleanup();
+    }
+
+    #[test]
+    fn test_special_characters() {
+        cleanup();
+        add_data_to_file("special!@#$", "value with spaces");
+        add_data_to_file("unicode_key_🦀", "unicode_value_⭐");
+
+        assert_eq!(get_data_from_file("special!@#$"), "value with spaces");
+        assert_eq!(get_data_from_file("unicode_key_🦀"), "unicode_value_⭐");
+        cleanup();
+    }
+
+    #[test]
+    #[should_panic(expected = "called `Option::unwrap()` on a `None` value")]
+    fn test_get_nonexistent_key() {
+        cleanup();
+        get_data_from_file("nonexistent_key");
+    }
+
+    #[test]
+    fn test_empty_file_initialization() {
+        cleanup();
+        check_file_exists();
+
+        assert!(fs::metadata("./data.json").is_ok());
+        let contents = fs::read_to_string("./data.json").unwrap();
+        assert_eq!(contents, "{}");
+        cleanup();
     }
 }
